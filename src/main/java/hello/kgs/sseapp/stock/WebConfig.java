@@ -1,4 +1,4 @@
-package hello.kgs.sseapp;
+package hello.kgs.sseapp.stock;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;

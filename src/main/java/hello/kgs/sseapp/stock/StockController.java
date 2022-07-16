@@ -1,4 +1,4 @@
-package hello.kgs.sseapp;
+package hello.kgs.sseapp.stock;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -17,13 +17,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 @Slf4j
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/stock")
+public class StockController {
+
     private static final long SSE_SESSION_TIMEOUT = 30 * 60 * 1000L;
 
     private final Set<SseEmitter> emitterSet = new CopyOnWriteArraySet<>();
 
-    @GetMapping(value = "/notice", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/currentPrice", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter signup(HttpServletRequest request) {
         log.info("SSE stream 접근 : {}", request.getRemoteAddr());
 
@@ -38,13 +39,11 @@ public class UserController {
 
     @Async
     @EventListener
-    public void onSignupEvent(final SignupEvent signupEvent) {
-        log.info("신규 회원 = {}, 이벤트 구독자 수 = {}", signupEvent.getUser(), emitterSet.size());
-
+    public void onSignupEvent(final UpdatePriceEvent event) {
         List<SseEmitter> deadEmitters = new ArrayList<>();
         emitterSet.forEach(emitter -> {
             try {
-                emitter.send(signupEvent, MediaType.APPLICATION_JSON);
+                emitter.send(event, MediaType.APPLICATION_JSON);
             } catch (Exception ignore) {
                 deadEmitters.add(emitter);
             }

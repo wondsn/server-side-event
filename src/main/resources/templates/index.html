@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<div>
+    <h4>삼성전자</h4>
+    <div>
+        현재가: <p id="price-samsung"></p>
+    </div>
+</div>
+<div>
+    <h4>테슬라</h4>
+    <div>
+        현재가: <p id="price-tesla"></p>
+    </div>
+</div>
+<div>
+    <h4>애플</h4>
+    <div>
+        현재가: <p id="price-apple"></p>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script type="text/javascript">
+    var source = null;
+    function start() {
+        source = new EventSource("/stock/currentPrice");
+        console.log("create Eventsource");
+        source.onmessage = function(ev) {
+            console.log("on message: ", ev.data);
+            const stock = JSON.parse(ev.data);
+            switch(stock.stock) {
+                case '삼성전자':
+                    $("#price-samsung").text(stock.updatePrice);
+                    break;
+                case '테슬라':
+                    $("#price-tesla").text(stock.updatePrice);
+                    break;
+                case '애플':
+                    $("#price-apple").text(stock.updatePrice);
+                    break;
+                default:
+                    console.error("유효하지 않는 주식입니다.")
+            }
+        };
+        source.onerror = function(err) {
+            console.log("on err: ", err);
+            stop();
+        };
+    }
+
+    function stop() {
+        if (source != null) {
+            source.close();
+            console.log("close EventSource");
+            source = null;
+        }
+    }
+
+    $(document).ready(function(){
+        start();
+    });
+    $(window).on("unload", function () {
+        stop();
+    });
+
+</script>
+</body>
+</html>
